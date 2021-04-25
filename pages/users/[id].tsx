@@ -4,18 +4,8 @@ import { GetStaticProps, GetStaticPaths } from 'next'
 import { ChevronDoubleLeftIcon } from '@heroicons/react/solid'
 import { initializeApollo } from '../../lib/apolloClient'
 import { GET_USERIDS, GET_USERBY_ID } from '../../queries/queries'
-import {
-  GetUserByIdQuery,
-  GetUsersQuery,
-  Users,
-} from '../../types/generated/graphql'
+import { GetUserByIdQuery, Users } from '../../types/generated/graphql'
 import { Layout } from '../../components/Layout'
-interface Props {
-  user: {
-    __typename?: 'users'
-  } & Pick<Users, 'id' | 'name' | 'created_at'>
-}
-
 interface Props {
   user: {
     __typename?: 'users'
@@ -24,7 +14,7 @@ interface Props {
 
 const UserDetail: VFC<Props> = ({ user }) => {
   if (!user) {
-    return <Layout title="loading">Loading</Layout>
+    return <Layout title="loading">Loading...</Layout>
   }
   return (
     <Layout title={user.name}>
@@ -33,7 +23,7 @@ const UserDetail: VFC<Props> = ({ user }) => {
         {'ID : '}
         {user.id}
       </p>
-      <p className="mb-4 text-xl font-bold">User detail</p>
+      <p className="mb-4 text-xl font-bold">{user.name}</p>
       <p className="mb-12">{user.created_at}</p>
       <Link href="/hasura-ssg">
         <div className="flex cursor-pointer mt-12">
@@ -64,7 +54,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
     fallback: true,
   }
 }
-
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const apolloClient = initializeApollo()
   const { data } = await apolloClient.query<GetUserByIdQuery>({
@@ -75,6 +64,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       user: data.users_by_pk,
     },
-    revalidate: 3,
+    revalidate: 1,
   }
 }
